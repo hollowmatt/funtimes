@@ -26,12 +26,12 @@ function loadData() {
     $body.append(img);
 
     //NYTIMES
-    var URL = "http://api.nytimes.com/svc/search/v2/articlesearch.json?q="
+    var NYT_URL = "http://api.nytimes.com/svc/search/v2/articlesearch.json?q="
             + city + "&sort=newest&api-key=" + NYT_KEY;
 
-    $.getJSON(URL, function(data) {
+    $.getJSON(NYT_URL, function(data) {
         $nytHeaderElem.text('New York Times Articles About ' + city);
-        articles = data.response.docs;
+        var articles = data.response.docs;
         for (var i = 0; i < articles.length; i++) {
             var article = articles[i];
             $nytElem.append('<li class="article">' +
@@ -43,6 +43,23 @@ function loadData() {
     });
 
     //WIKIPEDIA
+    var WIKI_URL = "http://en.wikipedia.org/w/api.php?format=json&action=opensearch&search="
+                 + city + "&format=json&callback=wikiCallback";
+
+    $.ajax({
+        url: WIKI_URL,
+        dataType: "jsonp"
+    }).success(function(data){
+        var articles = data[1];
+        console.log(articles);
+        for (var i = 0; i < articles.length; i++) {
+            var article = articles[i];
+            $wikiElem.append('<li class="article">' +
+                    '<a href="http://en.wikipedia.org/wiki/' + article + '">' + article +'</a>');
+        }
+    }).error(function(e) {
+        $wikiElem.append("Error retrieving Wikipedia Information");
+    });
 
     //End of function, return
     return false;
